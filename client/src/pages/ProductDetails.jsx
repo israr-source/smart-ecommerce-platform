@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import ReviewsSection from '../components/ReviewsSection';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -23,6 +24,8 @@ const ProductDetails = () => {
     const handleBuyNow = async () => {
         // Basic check for auth
         const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+
         if (!token) {
             alert('Please login to purchase');
             return;
@@ -37,7 +40,8 @@ const ProductDetails = () => {
                 },
                 body: JSON.stringify({
                     totalAmount: product.price,
-                    products: [{ productId: product._id, quantity: 1 }]
+                    products: [{ productId: product._id, quantity: 1 }],
+                    userId: user.uid // Sending userId for now until middleware is active
                 })
             });
             const data = await res.json();
@@ -61,7 +65,12 @@ const ProductDetails = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                     <div className="h-[400px] lg:h-[600px] bg-gray-100 relative">
                         <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover" />
-                        <div className="absolute top-4 left-4 badge badge-primary p-3 text-white">{product.category}</div>
+                        <div className="absolute top-4 left-4 flex gap-2">
+                            <div className="badge badge-primary p-3 text-white">{product.category}</div>
+                            <div className={`badge ${product.type === 'service' ? 'badge-info' : 'badge-ghost'} p-3 uppercase font-bold tracking-wider`}>
+                                {product.type || 'Product'}
+                            </div>
+                        </div>
                     </div>
 
                     <div className="p-8 lg:p-12 flex flex-col justify-center">
@@ -92,6 +101,8 @@ const ProductDetails = () => {
                     </div>
                 </div>
             </div>
+            {/* Reviews Section */}
+            <ReviewsSection productId={product._id} />
         </div>
     );
 };

@@ -17,10 +17,12 @@ app.use(express.json());
 
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 // Routes
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.get('/api/test', (req, res) => {
     res.json({ message: 'Server is running!' });
