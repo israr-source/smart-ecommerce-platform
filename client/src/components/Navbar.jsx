@@ -15,14 +15,14 @@ const Navbar = () => {
                         {localStorage.getItem('token') && <li><Link to="/dashboard">Dashboard</Link></li>}
                     </ul>
                 </div>
-                <Link to="/" className="btn btn-ghost text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">SmartShop</Link>
+                <Link to="/" className="btn btn-ghost text-3xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Shoply</Link>
             </div>
             <div className="navbar-center hidden lg:flex">
-                <ul className="menu menu-horizontal px-1 gap-2">
-                    <li><Link to="/" className="font-medium hover:text-primary">Home</Link></li>
-                    <li><Link to="/products" className="font-medium hover:text-primary">Products</Link></li>
-                    <li><Link to="/contact" className="font-medium hover:text-primary">Contact</Link></li>
-                    {localStorage.getItem('token') && <li><Link to="/dashboard" className="font-medium hover:text-primary">Dashboard</Link></li>}
+                <ul className="menu menu-horizontal px-1 gap-6">
+                    <li><Link to="/" className="text-lg font-bold text-gray-800 hover:text-primary transition-colors">Home</Link></li>
+                    <li><Link to="/products" className="text-lg font-bold text-gray-800 hover:text-primary transition-colors">Products</Link></li>
+                    <li><Link to="/contact" className="text-lg font-bold text-gray-800 hover:text-primary transition-colors">Contact</Link></li>
+                    {localStorage.getItem('token') && <li><Link to="/dashboard" className="text-lg font-bold text-gray-800 hover:text-primary transition-colors">Dashboard</Link></li>}
                 </ul>
             </div>
             <div className="navbar-end">

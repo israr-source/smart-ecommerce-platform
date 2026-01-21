@@ -2,7 +2,7 @@ const Footer = () => {
     return (
         <footer className="footer footer-center p-4 bg-base-300 text-base-content">
             <aside>
-                <p>Copyright © 2024 - All right reserved by SmartShop Ltd</p>
+                <p>Copyright © 2026 - All right reserved by Shoply Ltd</p>
             </aside>
         </footer>
     );
