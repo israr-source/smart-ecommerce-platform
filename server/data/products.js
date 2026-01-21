@@ -110,6 +110,54 @@ const products = [
         imageUrl: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=500&q=80",
         category: "Audio",
         stock: 20
+    },
+    {
+        title: "4K Camera Drone",
+        description: "Capture stunning aerial footage with this foldable 4K drone. Features GPS return and 30-min flight time.",
+        price: 549.99,
+        imageUrl: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=500&q=80",
+        category: "Drones",
+        stock: 15
+    },
+    {
+        title: "Action Camera 360",
+        description: "Rugged and waterproof action camera with 360-degree recording. Perfect for extreme sports and adventures.",
+        price: 299.99,
+        imageUrl: "https://images.unsplash.com/photo-1564466013-1815137ba0d8?w=500&q=80",
+        category: "Cameras",
+        stock: 40
+    },
+    {
+        title: "Smart Air Purifier",
+        description: "Breathe cleaner air. Monitors air quality in real-time and filters out 99.97% of allergens and dust.",
+        price: 159.99,
+        imageUrl: "https://images.unsplash.com/photo-1632007466851-460d37e6f987?w=500&q=80",
+        category: "Smart Home",
+        stock: 60
+    },
+    {
+        title: "Smart Coffee Maker",
+        description: "Wake up to fresh coffee. Schedule your brew via app or voice control. Adjustable strength settings.",
+        price: 129.99,
+        imageUrl: "https://images.unsplash.com/photo-1520593922312-5b90ce803fc1?w=500&q=80",
+        category: "Smart Home",
+        stock: 25
+    },
+    {
+        title: "Smart Soundbar",
+        description: "Upgrade your TV sound with this sleek soundbar. Built-in voice assistant and Dolby Atmos support.",
+        price: 199.99,
+        imageUrl: "https://images.unsplash.com/photo-1721864455806-69a489728de7?w=500&q=80",
+        category: "Audio",
+        stock: 30
+    },
+    {
+        title: "Smart Glasses",
+        description: "Stylish frames with built-in AR display, speakers, and camera. Stay connected without looking at your phone.",
+        price: 299.99,
+        imageUrl: "https://images.unsplash.com/photo-1579762593430-6d4ec0913c19?w=500&q=80",
+        category: "Wearables",
+        stock: 10
     }
 ];
 
