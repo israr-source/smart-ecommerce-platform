@@ -12,17 +12,34 @@ const Login = () => {
             const user = result.user;
             const token = await user.getIdToken();
 
-            // Store token in localStorage
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify({
-                uid: user.uid,
-                displayName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL
-            }));
+            // Sync with backend
+            const res = await fetch('/api/users/sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL
+                })
+            });
 
-            // Redirect to dashboard
-            navigate('/dashboard');
+            if (res.ok) {
+                const mongoUser = await res.json();
+                // Store combined info or just mongoUser (which includes _id and role)
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify({
+                    ...mongoUser,
+                    photoURL: user.photoURL // Mongo might not have photo yet, preserve it
+                }));
+                navigate('/dashboard');
+            } else {
+                console.error("Sync failed");
+                alert("Login failed during sync");
+            }
         } catch (error) {
             console.error("Login failed:", error);
         }

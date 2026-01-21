@@ -41,7 +41,7 @@ const ProductDetails = () => {
                 body: JSON.stringify({
                     totalAmount: product.price,
                     products: [{ productId: product._id, quantity: 1 }],
-                    userId: user.uid // Sending userId for now until middleware is active
+                    userId: user._id // Sending userId for now until middleware is active
                 })
             });
             const data = await res.json();

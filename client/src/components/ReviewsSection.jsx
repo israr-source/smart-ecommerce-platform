@@ -39,7 +39,7 @@ const ReviewsSection = ({ productId }) => {
                 body: JSON.stringify({
                     ...newReview,
                     productId,
-                    userId: user.uid // Ensure this matches backend expectation
+                    userId: user._id // Ensure this matches backend expectation
                 })
             });
 

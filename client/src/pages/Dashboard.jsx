@@ -41,25 +41,34 @@ const Dashboard = () => {
         } else {
             // Fetch my orders
             // We need to pass userId if not using auth middleware cookies/headers logic fully yet
-            const userId = JSON.parse(localStorage.getItem('user') || '{}').uid;
-            // In our previous seeder, we might not have 'uid' that matches Firebase UID unless we sync them. 
-            // But let's assume valid flow.
+            const userData = JSON.parse(localStorage.getItem('user') || '{}');
+            const userId = userData._id;
 
-            let url = '/api/orders/myorders';
             if (userId) {
-                // Determine if we need to query param (based on our backend logic update)
-                // Our backend looks for header 'userid' or query 'userId'
-                url += `?userId=${userId}`; // simpler for now
-            }
+                // In our previous seeder, we might not have 'uid' that matches Firebase UID unless we sync them. 
+                // But let's assume valid flow.
 
-            fetch(url, {
-                headers: {
-                    'userid': userId // sending as header too
+                let url = '/api/orders/myorders';
+                if (userId) {
+                    // Determine if we need to query param (based on our backend logic update)
+                    // Our backend looks for header 'userid' or query 'userId'
+                    url += `?userId=${userId}`; // simpler for now
                 }
-            })
-                .then(res => res.json())
-                .then(setOrders)
-                .catch(console.error);
+
+                fetch(url, {
+                    headers: {
+                        'userid': userId // sending as header too
+                    }
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed to fetch orders');
+                        return res.json();
+                    })
+                    .then(setOrders)
+                    .catch(console.error);
+            } else {
+                console.log("No user ID found, skipping order fetch");
+            }
         }
     };
 

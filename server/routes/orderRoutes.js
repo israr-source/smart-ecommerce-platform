@@ -68,7 +68,13 @@ router.get('/myorders', async (req, res) => {
 
         let query = {};
         if (userId) {
-            query.userId = userId;
+            // Validate if userId is a valid ObjectId to prevent CastError
+            const mongoose = require('mongoose');
+            if (mongoose.Types.ObjectId.isValid(userId)) {
+                query.userId = userId;
+            } else {
+                return res.status(400).json({ message: 'Invalid User ID format' });
+            }
         } else {
             // For safety, providing no orders is better than providing all orders
             // unless we are admin. 
