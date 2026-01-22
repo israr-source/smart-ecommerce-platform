@@ -46,7 +46,7 @@ const ProductDetails = () => {
             });
             const data = await res.json();
             if (res.ok) {
-                alert('Order placed successfully! Order ID: ' + data.orderId);
+                alert('Order placed successfully! Order ID: ' + data._id);
             } else {
                 alert('Order failed: ' + data.message);
             }

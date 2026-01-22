@@ -84,7 +84,7 @@ router.get('/myorders', async (req, res) => {
             if (demoUser) query.userId = demoUser._id;
         }
 
-        const orders = await Order.find(query).sort({ createdAt: -1 });
+        const orders = await Order.find(query).sort({ createdAt: -1 }).populate('products.productId', 'title imageUrl');
         res.json(orders);
 
     } catch (error) {

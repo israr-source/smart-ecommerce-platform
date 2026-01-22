@@ -207,7 +207,11 @@ const Dashboard = () => {
                                         <div className="space-y-2">
                                             {order.products.map((item, idx) => (
                                                 <div key={idx} className="flex justify-between items-center text-sm">
-                                                    <span>Product ID: {item.productId} (x{item.quantity})</span>
+                                                    <div>
+                                                        <span className="font-semibold block">{item.productId?.title || 'Unknown Product'}</span>
+                                                        <span className="text-xs text-gray-400">ID: {item.productId?._id || item.productId}</span>
+                                                    </div>
+                                                    <span className="font-mono">x{item.quantity}</span>
                                                 </div>
                                             ))}
                                         </div>
