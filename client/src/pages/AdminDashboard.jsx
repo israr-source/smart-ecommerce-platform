@@ -252,24 +252,55 @@ const AdminDashboard = () => {
                 {activeTab === 'settings' && (
                     <div>
                         <h2 className="text-2xl font-bold mb-6">Settings</h2>
-                        <div className="bg-white p-6 rounded-lg shadow-md max-w-md">
-                            <h3 className="text-lg font-semibold mb-4">Change Password</h3>
-                            <form onSubmit={async (e) => {
-                                e.preventDefault();
-                                const newPassword = e.target.newPassword.value;
-                                try {
-                                    const res = await fetch('/api/admin/password', {
-                                        method: 'PUT',
-                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                                        body: JSON.stringify({ newPassword })
-                                    });
-                                    if (res.ok) alert('Password updated');
-                                    else alert('Failed');
-                                } catch (err) { console.error(err); }
-                            }}>
-                                <input name="newPassword" type="password" placeholder="New Password" className="input input-bordered w-full mb-4" required />
-                                <button type="submit" className="btn btn-primary w-full">Update Password</button>
-                            </form>
+                        <div className="grid gap-6 md:grid-cols-2 max-w-4xl">
+                            {/* Change Email Form */}
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h3 className="text-lg font-semibold mb-4">Update Email</h3>
+                                <form onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    const newEmail = e.target.newEmail.value;
+                                    try {
+                                        const res = await fetch('/api/admin/email', {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                            body: JSON.stringify({ newEmail })
+                                        });
+                                        const data = await res.json();
+                                        if (res.ok) {
+                                            alert('Email updated successfully');
+                                            // Update local storage to reflect changes immediately
+                                            const currentUser = JSON.parse(localStorage.getItem('user'));
+                                            localStorage.setItem('user', JSON.stringify({ ...currentUser, email: newEmail }));
+                                        } else {
+                                            alert(data.message || 'Failed to update email');
+                                        }
+                                    } catch (err) { console.error(err); alert('Error updating email'); }
+                                }}>
+                                    <input name="newEmail" type="email" placeholder="New Email Address" className="input input-bordered w-full mb-4" defaultValue={JSON.parse(localStorage.getItem('user'))?.email} required />
+                                    <button type="submit" className="btn btn-secondary w-full">Update Email</button>
+                                </form>
+                            </div>
+
+                            {/* Change Password Form */}
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h3 className="text-lg font-semibold mb-4">Change Password</h3>
+                                <form onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    const newPassword = e.target.newPassword.value;
+                                    try {
+                                        const res = await fetch('/api/admin/password', {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                            body: JSON.stringify({ newPassword })
+                                        });
+                                        if (res.ok) alert('Password updated');
+                                        else alert('Failed');
+                                    } catch (err) { console.error(err); }
+                                }}>
+                                    <input name="newPassword" type="password" placeholder="New Password" className="input input-bordered w-full mb-4" required />
+                                    <button type="submit" className="btn btn-primary w-full">Update Password</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 )}

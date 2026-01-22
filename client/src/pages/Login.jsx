@@ -1,8 +1,8 @@
-import { signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
@@ -26,8 +26,8 @@ const Login = () => {
                 body: JSON.stringify({
                     uid: user.uid,
                     email: user.email,
-                    displayName: user.displayName || name || 'User', // Use form name if displayName is missing
-                    photoURL: user.photoURL
+                    displayName: user.displayName || name || 'User',
+                    photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || name || 'User')}&background=random`
                 })
             });
 
@@ -36,7 +36,7 @@ const Login = () => {
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify({
                     ...mongoUser,
-                    photoURL: user.photoURL
+                    photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || name || 'User')}&background=random`
                 }));
                 navigate('/dashboard');
             } else {
@@ -65,7 +65,15 @@ const Login = () => {
             let result;
             if (isSignUp) {
                 result = await createUserWithEmailAndPassword(auth, email, password);
-                // Can update profile with name here if needed, but sync handles it
+                // Update Firebase Profile immediately
+                const photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=random`;
+                await updateProfile(result.user, {
+                    displayName: name,
+                    photoURL: photoURL
+                });
+                // Update local user object manually for immediate sync uses
+                // (though sync uses the result.user object, it might not refresh instantly without reload, 
+                // but we pass param below effectively)
             } else {
                 result = await signInWithEmailAndPassword(auth, email, password);
             }
@@ -105,6 +113,8 @@ const Login = () => {
     const handleGoogleLogin = () => handleLogin(new GoogleAuthProvider());
     const handleGithubLogin = () => handleLogin(new GithubAuthProvider());
 
+    const [showPassword, setShowPassword] = useState(false);
+
     return (
         <div className="flex h-screen w-full bg-base-100 overflow-hidden">
             {/* Left Side - Visuals */}
@@ -128,8 +138,8 @@ const Login = () => {
 
                     {/* Tabs */}
                     <div role="tablist" className="tabs tabs-boxed mb-4">
-                        <a role="tab" className={`tab ${loginType === 'user' ? 'tab-active' : ''}`} onClick={() => setLoginType('user')}>User Login</a>
-                        <a role="tab" className={`tab ${loginType === 'admin' ? 'tab-active' : ''}`} onClick={() => setLoginType('admin')}>Admin Login</a>
+                        <a role="tab" className={`tab ${loginType === 'user' ? 'tab-active' : ''}`} onClick={() => { setLoginType('user'); setShowPassword(false); }}>User Login</a>
+                        <a role="tab" className={`tab ${loginType === 'admin' ? 'tab-active' : ''}`} onClick={() => { setLoginType('admin'); setShowPassword(false); }}>Admin Login</a>
                     </div>
 
                     {loginType === 'user' ? (
@@ -147,7 +157,23 @@ const Login = () => {
                                 </div>
                                 <div className="form-control">
                                     <label className="label"><span className="label-text">Password</span></label>
-                                    <input type="password" placeholder="********" className="input input-bordered" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="********"
+                                            className="input input-bordered w-full pr-10"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                        </button>
+                                    </div>
                                 </div>
                                 <button type="submit" className="btn btn-primary w-full shadow-lg">{isSignUp ? 'Sign Up' : 'Login'}</button>
 
@@ -191,7 +217,22 @@ const Login = () => {
                                 <label className="label">
                                     <span className="label-text">Password</span>
                                 </label>
-                                <input name="password" type="password" placeholder="admin" className="input input-bordered" required />
+                                <div className="relative">
+                                    <input
+                                        name="password"
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="admin"
+                                        className="input input-bordered w-full pr-10"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </button>
+                                </div>
                             </div>
                             <button type="submit" className="btn btn-primary w-full">Login as Admin</button>
                         </form>

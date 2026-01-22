@@ -28,7 +28,7 @@ const Navbar = () => {
                     <div className="dropdown dropdown-end">
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar border-2 border-primary">
                             <div className="w-10 rounded-full">
-                                <img alt="User" src={JSON.parse(localStorage.getItem('user'))?.photoURL || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"} />
+                                <img alt="User" src={JSON.parse(localStorage.getItem('user'))?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(JSON.parse(localStorage.getItem('user'))?.name || 'User')}&background=random`} />
                             </div>
                         </div>
                         <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-52">

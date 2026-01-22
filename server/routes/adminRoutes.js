@@ -56,4 +56,34 @@ router.put('/password', protectAdmin, async (req, res) => {
     }
 });
 
+// PUT /api/admin/email - Update Admin Email
+router.put('/email', protectAdmin, async (req, res) => {
+    const { newEmail } = req.body;
+    try {
+        // Check if email already exists
+        const emailExists = await User.findOne({ email: newEmail });
+        if (emailExists && emailExists._id.toString() !== req.user._id.toString()) {
+            return res.status(400).json({ message: 'Email already in use' });
+        }
+
+        const user = await User.findById(req.user._id);
+        if (user) {
+            user.email = newEmail;
+            await user.save();
+            res.json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                token: generateToken(user._id), // Optional: Refresh token if needed
+                message: 'Email updated successfully'
+            });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
 module.exports = router;
