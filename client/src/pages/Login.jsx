@@ -116,113 +116,51 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
-        <div className="flex h-screen w-full bg-base-100 overflow-hidden">
-            {/* Left Side - Visuals */}
-            <div className="hidden lg:flex flex-col justify-center items-center w-1/2 bg-gradient-to-br from-indigo-600 to-purple-700 text-white p-12 relative animate-fade-in">
-                <div className="absolute top-10 left-10 w-24 h-24 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
-                <div className="absolute bottom-20 right-20 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl animate-bounce-slow"></div>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 md:p-12 animate-slide-up">
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Shoply</h1>
+                    <p className="text-gray-500 text-sm">Welcome back! Please enter your details.</p>
+                </div>
 
-                <h1 className="text-6xl font-bold mb-4 z-10 drop-shadow-lg">Shoply</h1>
-                <p className="text-xl text-indigo-100 max-w-md text-center z-10 font-light">
-                    Experience the future of shopping with our curated smart gadgets.
-                </p>
-            </div>
+                {/* Minimalist Tabs */}
+                <div className="flex bg-gray-100 p-1 rounded-xl mb-8">
+                    <button
+                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginType === 'user' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        onClick={() => { setLoginType('user'); setShowPassword(false); }}
+                    >
+                        User
+                    </button>
+                    <button
+                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginType === 'admin' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        onClick={() => { setLoginType('admin'); setShowPassword(false); }}
+                    >
+                        Admin
+                    </button>
+                </div>
 
-            {/* Right Side - Login Form */}
-            <div className="flex flex-col justify-center items-center w-full lg:w-1/2 p-8 animate-slide-up">
-                <div className="w-full max-w-md space-y-8">
-                    <div className="text-center">
-                        <h2 className="text-4xl font-extrabold text-gray-900 mb-2">Welcome Back</h2>
-                        <p className="text-gray-500">Sign in to continue your journey</p>
-                    </div>
-
-                    {/* Tabs */}
-                    <div role="tablist" className="tabs tabs-boxed mb-4">
-                        <a role="tab" className={`tab ${loginType === 'user' ? 'tab-active' : ''}`} onClick={() => { setLoginType('user'); setShowPassword(false); }}>User Login</a>
-                        <a role="tab" className={`tab ${loginType === 'admin' ? 'tab-active' : ''}`} onClick={() => { setLoginType('admin'); setShowPassword(false); }}>Admin Login</a>
-                    </div>
-
-                    {loginType === 'user' ? (
-                        <>
-                            <form onSubmit={handleEmailAuth} className="space-y-4">
-                                {isSignUp && (
-                                    <div className="form-control">
-                                        <label className="label"><span className="label-text">Name</span></label>
-                                        <input type="text" placeholder="John Doe" className="input input-bordered" value={name} onChange={(e) => setName(e.target.value)} required />
-                                    </div>
-                                )}
-                                <div className="form-control">
-                                    <label className="label"><span className="label-text">Email</span></label>
-                                    <input type="email" placeholder="user@example.com" className="input input-bordered" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                {loginType === 'user' ? (
+                    <>
+                        <form onSubmit={handleEmailAuth} className="space-y-5">
+                            {isSignUp && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input type="text" placeholder="John Doe" className="input input-bordered w-full bg-gray-50 focus:bg-white transition-colors" value={name} onChange={(e) => setName(e.target.value)} required />
                                 </div>
-                                <div className="form-control">
-                                    <label className="label"><span className="label-text">Password</span></label>
-                                    <div className="relative">
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            placeholder="********"
-                                            className="input input-bordered w-full pr-10"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            required
-                                        />
-                                        <button
-                                            type="button"
-                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            {showPassword ? <FaEyeSlash /> : <FaEye />}
-                                        </button>
-                                    </div>
-                                </div>
-                                <button type="submit" className="btn btn-primary w-full shadow-lg">{isSignUp ? 'Sign Up' : 'Login'}</button>
-
-                                <div className="text-center text-sm">
-                                    <span className="text-gray-500">{isSignUp ? 'Already have an account?' : "Don't have an account?"}</span>
-                                    <button type="button" onClick={() => setIsSignUp(!isSignUp)} className="ml-2 text-primary font-bold hover:underline">
-                                        {isSignUp ? 'Login' : 'Sign Up'}
-                                    </button>
-                                </div>
-                            </form>
-
-                            <div className="divider">OR</div>
-
-                            <div className="space-y-4">
-                                <button
-                                    onClick={handleGoogleLogin}
-                                    className="w-full flex items-center justify-center gap-3 px-6 py-4 border border-gray-300 rounded-xl shadow-sm bg-white text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all duration-300 font-medium group"
-                                >
-                                    <FcGoogle className="text-2xl group-hover:scale-110 transition-transform" />
-                                    <span>Continue with Google</span>
-                                </button>
-
-                                <button
-                                    onClick={handleGithubLogin}
-                                    className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl shadow-lg bg-[#24292e] text-white hover:bg-[#2f363d] hover:shadow-xl transition-all duration-300 font-medium group"
-                                >
-                                    <FaGithub className="text-2xl group-hover:scale-110 transition-transform" />
-                                    <span>Continue with GitHub</span>
-                                </button>
+                            )}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" placeholder="user@example.com" className="input input-bordered w-full bg-gray-50 focus:bg-white transition-colors" value={email} onChange={(e) => setEmail(e.target.value)} required />
                             </div>
-                        </>
-                    ) : (
-                        <form onSubmit={handleAdminLogin} className="space-y-4 mt-8">
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">Email</span>
-                                </label>
-                                <input name="email" type="email" placeholder="admin@shoply.com" className="input input-bordered" required />
-                            </div>
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">Password</span>
-                                </label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                                 <div className="relative">
                                     <input
-                                        name="password"
                                         type={showPassword ? "text" : "password"}
-                                        placeholder="admin"
-                                        className="input input-bordered w-full pr-10"
+                                        placeholder="********"
+                                        className="input input-bordered w-full bg-gray-50 focus:bg-white transition-colors pr-10"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
                                         required
                                     />
                                     <button
@@ -234,30 +172,79 @@ const Login = () => {
                                     </button>
                                 </div>
                             </div>
-                            <button type="submit" className="btn btn-primary w-full">Login as Admin</button>
-                        </form>
-                    )}
+                            <button type="submit" className="btn btn-primary w-full shadow-md text-white">{isSignUp ? 'Sign Up' : 'Sign In'}</button>
 
-                    <div className="text-center mt-8">
-                        <p className="text-sm text-gray-400">
-                            By continuing, you agree to our <a href="#" className="underline hover:text-indigo-600">Terms of Service</a> and <a href="#" className="underline hover:text-indigo-600">Privacy Policy</a>.
-                        </p>
-                    </div>
-                </div>
+                            <div className="text-center text-sm text-gray-500">
+                                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                                <button type="button" onClick={() => setIsSignUp(!isSignUp)} className="ml-2 text-primary font-semibold hover:underline">
+                                    {isSignUp ? 'Log in' : 'Sign up'}
+                                </button>
+                            </div>
+                        </form>
+
+                        <div className="relative my-8">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-200"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-white text-gray-400">Or continue with</span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                onClick={handleGoogleLogin}
+                                className="btn btn-outline border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 normal-case"
+                            >
+                                <FcGoogle className="text-xl mr-2" /> Google
+                            </button>
+                            <button
+                                onClick={handleGithubLogin}
+                                className="btn btn-outline border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 normal-case"
+                            >
+                                <FaGithub className="text-xl mr-2" /> GitHub
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <form onSubmit={handleAdminLogin} className="space-y-5">
+                        <div className="alert alert-info shadow-sm text-sm py-2">
+                            <span>Admin access requires authorized credentials.</span>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Admin Email</label>
+                            <input name="email" type="email" placeholder="admin@shoply.com" className="input input-bordered w-full bg-gray-50 focus:bg-white transition-colors" required />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <div className="relative">
+                                <input
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    className="input input-bordered w-full bg-gray-50 focus:bg-white transition-colors pr-10"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" className="btn btn-neutral w-full shadow-lg">Access Dashboard</button>
+                    </form>
+                )}
             </div>
 
             <style>{`
-                @keyframes fade-in {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
                 @keyframes slide-up {
                     from { opacity: 0; transform: translateY(20px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                .animate-fade-in { animation: fade-in 1s ease-out; }
-                .animate-slide-up { animation: slide-up 0.8s ease-out; }
-                .animate-bounce-slow { animation: bounce 4s infinite; }
+                .animate-slide-up { animation: slide-up 0.5s ease-out; }
             `}</style>
         </div>
     );

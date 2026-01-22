@@ -45,7 +45,7 @@ const Footer = () => {
             </div>
             <div className="footer footer-center p-4 bg-neutral-focus text-base-content border-t border-neutral-content/10">
                 <aside>
-                    <p className="text-sm opacity-75">Copyright © 2026 - All right reserved by Shoply Ltd</p>
+                    <p className="text-sm text-white font-medium">Copyright © 2026 - All right reserved by Shoply Ltd</p>
                 </aside>
             </div>
         </footer>
