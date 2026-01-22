@@ -162,186 +162,286 @@ const Dashboard = () => {
         }
     };
 
+
+    // Stats Calculation
+    const totalSpent = orders.reduce((acc, order) => acc + (order.status !== 'cancelled' ? order.totalAmount : 0), 0);
+    const activeOrdersCount = orders.filter(o => o.status === 'pending' || o.status === 'shipped').length;
+
     return (
-        <div className="container mx-auto py-10 px-4 min-h-screen">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Dashboard</h1>
-                <div className="flex items-center gap-4">
-                    {/* Tab Switcher for User */}
-                    {role === 'user' && (
-                        <div className="tabs tabs-boxed">
-                            <a className={`tab ${view === 'list' ? 'tab-active' : ''}`} onClick={() => setView('list')}>My Orders</a>
-                            <a className={`tab ${view === 'wishlist' ? 'tab-active' : ''}`} onClick={() => setView('wishlist')}>Wishlist</a>
+        <div className="min-h-screen bg-base-200/50 pb-20">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-primary to-secondary text-primary-content pt-12 pb-24 px-4 rounded-b-[3rem] shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-64 w-64" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                </div>
+                <div className="container mx-auto relative z-10 text-center sm:text-left">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div>
+                            <h1 className="text-4xl font-bold mb-2">Hello, {user.email?.split('@')[0] || 'User'}! 👋</h1>
+                            <p className="text-primary-content/80 text-lg">Welcome back to your dashboard.</p>
                         </div>
-                    )}
-                    <div className="badge badge-lg badge-primary">{role === 'admin' ? 'Admin Access' : 'User Access'}</div>
+                        <div className="badge badge-lg bg-white/20 border-none text-white backdrop-blur-sm p-4">
+                            {role === 'admin' ? 'Admin Access' : 'Member'}
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {role === 'admin' ? (
-                // ... Admin View ...
-                <div>
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-semibold">Manage Products & Services</h2>
-                        {view === 'list' && (
-                            <button onClick={() => { setEditingProduct(null); setView('form'); }} className="btn btn-primary">
-                                + Add New
-                            </button>
+            <div className="container mx-auto px-4 -mt-16 relative z-20">
+                {/* Stats Grid */}
+                {role === 'user' && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        <div className="stat bg-base-100 shadow-lg rounded-2xl border border-base-200">
+                            <div className="stat-figure text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div className="stat-title font-medium">Total Spent</div>
+                            <div className="stat-value text-primary">${totalSpent.toFixed(2)}</div>
+                            <div className="stat-desc">Lifetime purchases</div>
+                        </div>
+
+                        <div className="stat bg-base-100 shadow-lg rounded-2xl border border-base-200">
+                            <div className="stat-figure text-secondary">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                            </div>
+                            <div className="stat-title font-medium">Active Orders</div>
+                            <div className="stat-value text-secondary">{activeOrdersCount}</div>
+                            <div className="stat-desc">Pending or Shipped</div>
+                        </div>
+
+                        <div className="stat bg-base-100 shadow-lg rounded-2xl border border-base-200">
+                            <div className="stat-figure text-accent">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-8 h-8 stroke-current"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            </div>
+                            <div className="stat-title font-medium">Wishlist</div>
+                            <div className="stat-value text-accent">{wishlistProducts.length}</div>
+                            <div className="stat-desc">Items saved</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Main Content Area */}
+                <div className="bg-base-100 rounded-3xl shadow-xl min-h-[500px] overflow-hidden border border-base-200">
+
+                    {role === 'user' && (
+                        <div className="border-b border-base-200">
+                            <div className="flex justify-center sm:justify-start p-4 bg-base-50/50">
+                                <div className="tabs tabs-boxed bg-base-200/50 p-1 rounded-xl">
+                                    <a className={`tab tab-md rounded-lg transition-all duration-300 ${view === 'list' ? 'tab-active bg-white shadow-sm' : ''}`} onClick={() => setView('list')}>📦 My Orders</a>
+                                    <a className={`tab tab-md rounded-lg transition-all duration-300 ${view === 'wishlist' ? 'tab-active bg-white shadow-sm' : ''}`} onClick={() => setView('wishlist')}>❤️ My Wishlist</a>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="p-4 sm:p-8">
+                        {role === 'admin' ? (
+                            // ... Admin View ...
+                            <div>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold">Product Management</h2>
+                                    {view === 'list' && (
+                                        <button onClick={() => { setEditingProduct(null); setView('form'); }} className="btn btn-primary gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                                            Add New Product
+                                        </button>
+                                    )}
+                                </div>
+
+                                {view === 'form' ? (
+                                    <AdminProductForm
+                                        productToEdit={editingProduct}
+                                        onSuccess={handleFormSuccess}
+                                        onCancel={() => setView('list')}
+                                    />
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="table w-full">
+                                            <thead className="bg-base-200">
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Type</th>
+                                                    <th>Price</th>
+                                                    <th>Stock</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {products.map(product => (
+                                                    <tr key={product._id} className="hover">
+                                                        <td>
+                                                            <div className="flex items-center space-x-3">
+                                                                <div className="avatar">
+                                                                    <div className="mask mask-squircle w-12 h-12">
+                                                                        <img src={product.imageUrl} alt={product.title} />
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className="font-bold">{product.title}</div>
+                                                                    <div className="text-sm opacity-50">{product.category}</div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <span className={`badge ${product.type === 'service' ? 'badge-info' : 'badge-ghost'} badge-sm`}>
+                                                                {product.type || 'product'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="font-mono">${product.price}</td>
+                                                        <td>{product.stock}</td>
+                                                        <td>
+                                                            <button onClick={() => handleEditProduct(product)} className="btn btn-ghost btn-xs text-warning mr-2">Edit</button>
+                                                            <button onClick={() => handleDeleteProduct(product._id)} className="btn btn-ghost btn-xs text-error">Delete</button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            // User View
+                            <div className="animate-fade-in">
+                                {view === 'wishlist' ? (
+                                    // Wishlist View
+                                    <div>
+                                        {wishlistProducts.length === 0 ? (
+                                            <div className="text-center py-20">
+                                                <div className="bg-base-200 rounded-full h-24 w-24 flex items-center justify-center mx-auto mb-4">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                                                </div>
+                                                <h3 className="text-xl font-bold mb-2">Your wishlist is empty</h3>
+                                                <p className="text-gray-500 mb-6">Start exploring products to save for later!</p>
+                                                <a href="/products" className="btn btn-primary">Explore Products</a>
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                                {wishlistProducts.map(product => (
+                                                    <div key={product._id} className="card bg-base-100 shadow-lg border border-base-100 hover:shadow-2xl transition-all duration-300 group">
+                                                        <figure className="h-48 overflow-hidden relative">
+                                                            <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                            <div className="absolute top-2 right-2 badge badge-ghost bg-white/80 backdrop-blur-md">{product.category}</div>
+                                                        </figure>
+                                                        <div className="card-body p-4">
+                                                            <h3 className="card-title text-base font-bold truncate">{product.title}</h3>
+                                                            <p className="text-sm text-gray-500 line-clamp-1 h-5">{product.description}</p>
+                                                            <div className="flex justify-between items-center mt-3">
+                                                                <span className="text-lg font-bold text-primary">${product.price}</span>
+                                                                <a href={`/products/${product._id}`} className="btn btn-sm btn-circle btn-primary">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    // Orders View
+                                    <div className="space-y-6">
+                                        {orders.length === 0 ? (
+                                            <div className="text-center py-20">
+                                                <div className="bg-base-200 rounded-full h-24 w-24 flex items-center justify-center mx-auto mb-4">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                                                </div>
+                                                <h3 className="text-xl font-bold mb-2">No orders yet</h3>
+                                                <p className="text-gray-500 mb-6">Looks like you haven't placed any orders.</p>
+                                                <a href="/products" className="btn btn-primary">Start Shopping</a>
+                                            </div>
+                                        ) : (
+                                            orders.map(order => (
+                                                <div key={order._id} className="card bg-base-100 shadow-md border border-base-200 overflow-hidden hover:shadow-lg transition-shadow">
+                                                    {/* Order Header */}
+                                                    <div className="bg-base-200/50 p-4 flex flex-wrap justify-between items-center gap-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`p-2 rounded-full ${order.status === 'shipped' ? 'bg-success/10 text-success' : order.status === 'cancelled' ? 'bg-error/10 text-error' : 'bg-warning/10 text-warning'}`}>
+                                                                {order.status === 'shipped' ? (
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                                                                ) : order.status === 'cancelled' ? (
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                                ) : (
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                )}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-bold text-sm">Order <span className="font-mono text-gray-500">#{order._id.slice(-6).toUpperCase()}</span></p>
+                                                                <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString()}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className={`badge ${order.status === 'shipped' ? 'badge-success' : order.status === 'cancelled' ? 'badge-error' : 'badge-warning'} uppercase font-bold tracking-wider`}>
+                                                            {order.status}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="p-0">
+                                                        {/* Order Items */}
+                                                        {order.products.map((item, idx) => (
+                                                            <div key={idx} className="flex gap-4 p-4 border-b border-base-100 last:border-0 hover:bg-base-50/50 transition-colors">
+                                                                <div className="avatar">
+                                                                    <div className="w-16 h-16 rounded-xl bg-base-200">
+                                                                        {item.productId?.imageUrl ? (
+                                                                            <img src={item.productId.imageUrl} alt={item.productId.title || 'Product'} />
+                                                                        ) : (
+                                                                            <span className="flex items-center justify-center h-full text-xs">No Img</span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <h4 className="font-bold text-base">{item.productId?.title || 'Unknown Product'}</h4>
+                                                                    <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    {item.productId?.price && <p className="font-bold">${item.productId.price * item.quantity}</p>}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    {/* Order Footer */}
+                                                    <div className="bg-base-50 p-4 border-t border-base-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                                                        <div className="text-sm space-y-1 w-full md:w-auto">
+                                                            <div className="flex items-center gap-2">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                                                <span className="font-semibold text-gray-600">Ship to:</span> {order.shippingAddress}
+                                                            </div>
+                                                            {order.estimatedDelivery && (
+                                                                <div className="flex items-center gap-2 text-info font-medium">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                                                    <span>Arriving by: {order.estimatedDelivery}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                                                            <div className="text-lg font-bold mr-4">Total: ${order.totalAmount}</div>
+
+                                                            {order.status === 'pending' && (
+                                                                <>
+                                                                    <button onClick={() => handleUpdateAddress(order._id, order.shippingAddress)} className="btn btn-sm btn-ghost hover:bg-base-200">
+                                                                        Edit Address
+                                                                    </button>
+                                                                    <button onClick={() => handleCancelOrder(order._id)} className="btn btn-sm btn-warning btn-outline">
+                                                                        Cancel
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                            <button onClick={() => handleDeleteOrder(order._id)} className="btn btn-sm btn-error btn-outline" title="Delete History">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
-
-                    {view === 'form' ? (
-                        <AdminProductForm
-                            productToEdit={editingProduct}
-                            onSuccess={handleFormSuccess}
-                            onCancel={() => setView('list')}
-                        />
-                    ) : (
-                        <div className="overflow-x-auto bg-base-100 rounded-lg shadow-xl">
-                            <table className="table w-full">
-                                <thead className="bg-base-200">
-                                    <tr>
-                                        <th>Image</th>
-                                        <th>Title</th>
-                                        <th>Type</th>
-                                        <th>Price</th>
-                                        <th>Stock</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {products.map(product => (
-                                        <tr key={product._id} className="hover">
-                                            <td>
-                                                <div className="avatar">
-                                                    <div className="mask mask-squircle w-12 h-12">
-                                                        <img src={product.imageUrl} alt={product.title} />
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="font-bold">{product.title}</td>
-                                            <td>
-                                                <span className={`badge ${product.type === 'service' ? 'badge-info' : 'badge-ghost'}`}>
-                                                    {product.type || 'product'}
-                                                </span>
-                                            </td>
-                                            <td>${product.price}</td>
-                                            <td>{product.stock}</td>
-                                            <td>
-                                                <button onClick={() => handleEditProduct(product)} className="btn btn-ghost btn-xs text-warning mr-2">Edit</button>
-                                                <button onClick={() => handleDeleteProduct(product._id)} className="btn btn-ghost btn-xs text-error">Delete</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
                 </div>
-            ) : (
-                <div>
-                    {view === 'wishlist' ? (
-                        <div>
-                            <h2 className="text-2xl font-semibold mb-4">My Wishlist</h2>
-                            {wishlistProducts.length === 0 ? (
-                                <div className="text-center py-10 bg-base-100 rounded-xl shadow">
-                                    <p className="text-lg text-gray-500">Your wishlist is empty.</p>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {wishlistProducts.map(product => (
-                                        <div key={product._id} className="card bg-base-100 shadow-xl border border-base-200">
-                                            <figure className="h-48 overflow-hidden">
-                                                <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover" />
-                                            </figure>
-                                            <div className="card-body p-4">
-                                                <h3 className="card-title text-base">{product.title}</h3>
-                                                <p className="text-sm text-gray-500 line-clamp-2">{product.description}</p>
-                                                <div className="card-actions justify-between items-center mt-2">
-                                                    <span className="text-lg font-bold text-primary">${product.price}</span>
-                                                    <a href={`/products/${product._id}`} className="btn btn-sm btn-outline btn-primary">View</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div>
-                            <h2 className="text-2xl font-semibold mb-4">My Orders</h2>
-                            {orders.length === 0 ? (
-                                <div className="text-center py-10 bg-base-100 rounded-xl shadow">
-                                    <p className="text-lg text-gray-500">No orders found.</p>
-                                </div>
-                            ) : (
-                                <div className="grid gap-4">
-                                    {orders.map(order => (
-                                        <div key={order._id} className="card bg-base-100 shadow-xl border border-base-200">
-                                            <div className="card-body">
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <h3 className="card-title text-primary">Order #{order._id.slice(-6)}</h3>
-                                                        <p className="text-sm text-gray-500">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                                                        {order.shippingAddress && (
-                                                            <p className="text-sm text-gray-500 mt-1">
-                                                                <span className="font-semibold">Ship to:</span> {order.shippingAddress}
-                                                            </p>
-                                                        )}
-                                                        {order.estimatedDelivery && (
-                                                            <p className="text-xs text-info mt-1 font-semibold">
-                                                                Arriving by: {order.estimatedDelivery}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                    <span className={`badge ${order.status === 'shipped' ? 'badge-success' : order.status === 'cancelled' ? 'badge-error' : 'badge-warning'} p-3`}>
-                                                        {order.status}
-                                                    </span>
-                                                </div>
-
-                                                <div className="divider my-2"></div>
-
-                                                <div className="space-y-2">
-                                                    {order.products.map((item, idx) => (
-                                                        <div key={idx} className="flex justify-between items-center text-sm">
-                                                            <div>
-                                                                <span className="font-semibold block">{item.productId?.title || 'Unknown Product'}</span>
-                                                                <span className="text-xs text-gray-400">ID: {item.productId?._id || item.productId}</span>
-                                                            </div>
-                                                            <span className="font-mono">x{item.quantity}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                <div className="divider my-2"></div>
-
-                                                <div className="flex flex-col sm:flex-row justify-between items-center mt-2 gap-4">
-                                                    <p className="text-xl font-bold">Total: ${order.totalAmount}</p>
-                                                    <div className="flex gap-2">
-                                                        {order.status === 'pending' && (
-                                                            <>
-                                                                <button onClick={() => handleUpdateAddress(order._id, order.shippingAddress)} className="btn btn-sm btn-ghost">
-                                                                    Edit Address
-                                                                </button>
-                                                                <button onClick={() => handleCancelOrder(order._id)} className="btn btn-sm btn-outline btn-warning">
-                                                                    Cancel
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                        <button onClick={() => handleDeleteOrder(order._id)} className="btn btn-sm btn-outline btn-error">
-                                                            Delete
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
+            </div>
         </div>
     );
 };

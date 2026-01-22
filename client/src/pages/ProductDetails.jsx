@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ReviewsSection from '../components/ReviewsSection';
 
 const ProductDetails = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -22,6 +23,7 @@ const ProductDetails = () => {
 
 
     const [showCheckout, setShowCheckout] = useState(false);
+    const [quantity, setQuantity] = useState(1);
     const addressRef = useRef();
     const [shippingInfo, setShippingInfo] = useState({ cost: 0, date: '' });
 
@@ -29,6 +31,7 @@ const ProductDetails = () => {
         const token = localStorage.getItem('token');
         if (!token) {
             alert('Please login to purchase');
+            navigate('/login');
             return;
         }
 
@@ -54,23 +57,28 @@ const ProductDetails = () => {
             return;
         }
 
-        setLoading(true);
-
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user'));
 
+        if (!user || !token) { // Check for user and token
+            alert('Please login first');
+            return;
+        }
+
+        setLoading(true);
+
         try {
-            const finalTotal = product.price + shippingInfo.cost;
+            const finalTotal = (product.price * quantity) + shippingInfo.cost; // Updated total calculation
 
             const res = await fetch('/api/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}` // Use token from localStorage
                 },
                 body: JSON.stringify({
                     totalAmount: finalTotal,
-                    products: [{ productId: product._id, quantity: 1 }],
+                    products: [{ productId: product._id, quantity: quantity }], // Pass selected quantity
                     userId: user._id,
                     shippingAddress: address,
                     shippingCost: shippingInfo.cost,
@@ -79,8 +87,8 @@ const ProductDetails = () => {
             });
             const data = await res.json();
             if (res.ok) {
-                alert('Order placed successfully! Order ID: ' + data._id);
                 setShowCheckout(false);
+                navigate('/order-confirmation', { state: { order: data } }); // Navigate on success
             } else {
                 alert('Order failed: ' + data.message);
             }
@@ -109,10 +117,21 @@ const ProductDetails = () => {
                         <div className="space-y-4">
                             <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
                                 <h3 className="font-semibold text-gray-700 mb-2">Order Summary</h3>
-                                <div className="flex justify-between text-sm mb-1">
-                                    <span>{product.title} (x1)</span>
-                                    <span>${product.price}</span>
+                                <div className="flex justify-between items-center text-sm mb-2">
+                                    <span>{product.title}</span>
+                                    <span className="font-bold">${product.price}</span>
                                 </div>
+
+                                {/* Quantity Selector */}
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-sm">Quantity</span>
+                                    <div className="join">
+                                        <button className="join-item btn btn-xs btn-outline" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+                                        <span className="join-item btn btn-xs bg-base-100 border-base-content/20 no-animation w-10">{quantity}</span>
+                                        <button className="join-item btn btn-xs btn-outline" onClick={() => setQuantity(quantity + 1)}>+</button>
+                                    </div>
+                                </div>
+
                                 <div className="flex justify-between text-sm mb-1 text-gray-500">
                                     <span>Shipping Estimate</span>
                                     <span>${shippingInfo.cost}</span>
@@ -124,7 +143,7 @@ const ProductDetails = () => {
                                 <div className="divider my-1"></div>
                                 <div className="flex justify-between text-lg font-bold">
                                     <span>Total</span>
-                                    <span>${product.price + shippingInfo.cost}</span>
+                                    <span>${((product.price * quantity) + shippingInfo.cost).toFixed(2)}</span>
                                 </div>
                             </div>
 
