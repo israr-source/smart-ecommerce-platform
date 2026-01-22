@@ -44,11 +44,7 @@ const Dashboard = () => {
     };
 
     const fetchData = (currentRole) => {
-        // ... existing fetchData implementation ... 
-        // preserving original logic just by not changing it here since we only replacing lines 22-33 if we were replacing that block, 
-        // but wait, I need to insert fetchWishlist function and state.
-        // Let's replace the whole component body relative to the change or just insert carefully.
-        // Actually, I will replace the component main parts to integrate the tab switching.
+        const token = localStorage.getItem('token');
         if (currentRole === 'admin') {
             fetch('/api/products')
                 .then(res => res.json())
@@ -62,7 +58,10 @@ const Dashboard = () => {
                 let url = '/api/orders/myorders';
                 if (userId) url += `?userId=${userId}`;
 
-                fetch(url, { headers: { 'userid': userId } })
+                const headers = { 'userid': userId };
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                fetch(url, { headers })
                     .then(res => {
                         if (!res.ok) throw new Error('Failed to fetch orders');
                         return res.json();
@@ -73,7 +72,95 @@ const Dashboard = () => {
         }
     };
 
-    // ... existing handlers ...
+    const handleEditProduct = (product) => {
+        setEditingProduct(product);
+        setView('form');
+    };
+
+    const handleDeleteProduct = async (id) => {
+        if (window.confirm('Are you sure you want to delete this product?')) {
+            try {
+                await fetch(`/api/products/${id}`, { method: 'DELETE' });
+                fetchData('admin');
+            } catch (error) {
+                console.error(error);
+                alert('Failed to delete');
+            }
+        }
+    };
+
+    const handleFormSuccess = () => {
+        setView('list');
+        setEditingProduct(null);
+        fetchData('admin');
+    };
+
+    const handleUpdateAddress = async (orderId, currentAddress) => {
+        const newAddress = prompt("Enter new shipping address:", currentAddress);
+        if (newAddress && newAddress !== currentAddress) {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`/api/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ shippingAddress: newAddress })
+                });
+                if (res.ok) {
+                    fetchData('user');
+                } else {
+                    alert('Failed to update address');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    };
+
+    const handleDeleteOrder = async (orderId) => {
+        if (window.confirm('Are you sure you want to delete this order history?')) {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`/api/orders/${orderId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    fetchData('user');
+                } else {
+                    alert('Failed to delete order');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    };
+
+    const handleCancelOrder = async (orderId) => {
+        if (window.confirm('Are you sure you want to cancel this order?')) {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`/api/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: 'cancelled' })
+                });
+                if (res.ok) {
+                    fetchData('user');
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    alert('Failed to cancel: ' + (data.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    };
 
     return (
         <div className="container mx-auto py-10 px-4 min-h-screen">
@@ -196,6 +283,16 @@ const Dashboard = () => {
                                                     <div>
                                                         <h3 className="card-title text-primary">Order #{order._id.slice(-6)}</h3>
                                                         <p className="text-sm text-gray-500">Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                                                        {order.shippingAddress && (
+                                                            <p className="text-sm text-gray-500 mt-1">
+                                                                <span className="font-semibold">Ship to:</span> {order.shippingAddress}
+                                                            </p>
+                                                        )}
+                                                        {order.estimatedDelivery && (
+                                                            <p className="text-xs text-info mt-1 font-semibold">
+                                                                Arriving by: {order.estimatedDelivery}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <span className={`badge ${order.status === 'shipped' ? 'badge-success' : order.status === 'cancelled' ? 'badge-error' : 'badge-warning'} p-3`}>
                                                         {order.status}
@@ -218,13 +315,23 @@ const Dashboard = () => {
 
                                                 <div className="divider my-2"></div>
 
-                                                <div className="flex justify-between items-center mt-2">
+                                                <div className="flex flex-col sm:flex-row justify-between items-center mt-2 gap-4">
                                                     <p className="text-xl font-bold">Total: ${order.totalAmount}</p>
-                                                    {order.status === 'pending' && (
-                                                        <button onClick={() => handleCancelOrder(order._id)} className="btn btn-sm btn-outline btn-error">
-                                                            Cancel Order
+                                                    <div className="flex gap-2">
+                                                        {order.status === 'pending' && (
+                                                            <>
+                                                                <button onClick={() => handleUpdateAddress(order._id, order.shippingAddress)} className="btn btn-sm btn-ghost">
+                                                                    Edit Address
+                                                                </button>
+                                                                <button onClick={() => handleCancelOrder(order._id)} className="btn btn-sm btn-outline btn-warning">
+                                                                    Cancel
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                        <button onClick={() => handleDeleteOrder(order._id)} className="btn btn-sm btn-outline btn-error">
+                                                            Delete
                                                         </button>
-                                                    )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

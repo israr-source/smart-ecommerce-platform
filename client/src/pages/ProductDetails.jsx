@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import ReviewsSection from '../components/ReviewsSection';
 
@@ -21,47 +21,149 @@ const ProductDetails = () => {
     }, [id]);
 
 
-    const handleBuyNow = async () => {
-        // Basic check for auth
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user'));
+    const [showCheckout, setShowCheckout] = useState(false);
+    const addressRef = useRef();
+    const [shippingInfo, setShippingInfo] = useState({ cost: 0, date: '' });
 
+    const handleBuyNow = () => {
+        const token = localStorage.getItem('token');
         if (!token) {
             alert('Please login to purchase');
             return;
         }
 
+        // Suggest/Generate Shipping
+        const randomCost = Math.floor(Math.random() * 20) + 5; // $5 - $25
+        const days = Math.floor(Math.random() * 7) + 3; // 3 - 10 days
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + days);
+
+        setShippingInfo({
+            cost: randomCost,
+            date: deliveryDate.toDateString()
+        });
+
+        setShowCheckout(true);
+    };
+
+    const handlePlaceOrder = async (e) => {
+        e.preventDefault(); // Prevent form submit refresh if any
+        const address = addressRef.current.value;
+        if (!address) {
+            alert('Address is required');
+            return;
+        }
+
+        setLoading(true);
+
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+
         try {
+            const finalTotal = product.price + shippingInfo.cost;
+
             const res = await fetch('/api/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'Authorization': `Bearer ${token}` // Uncomment when auth middleware is active
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    totalAmount: product.price,
+                    totalAmount: finalTotal,
                     products: [{ productId: product._id, quantity: 1 }],
-                    userId: user._id // Sending userId for now until middleware is active
+                    userId: user._id,
+                    shippingAddress: address,
+                    shippingCost: shippingInfo.cost,
+                    estimatedDelivery: shippingInfo.date
                 })
             });
             const data = await res.json();
             if (res.ok) {
                 alert('Order placed successfully! Order ID: ' + data._id);
+                setShowCheckout(false);
             } else {
                 alert('Order failed: ' + data.message);
             }
         } catch (error) {
             console.error(error);
             alert('Something went wrong');
+        } finally {
+            setLoading(false);
         }
     };
 
-    if (loading) return <div className="min-h-screen flex justify-center items-center"><span className="loading loading-spinner loading-lg text-primary"></span></div>;
+    if (loading && !showCheckout) return <div className="min-h-screen flex justify-center items-center"><span className="loading loading-spinner loading-lg text-primary"></span></div>;
     if (!product) return <div className="min-h-screen flex justify-center items-center text-xl">Product not found</div>;
 
     return (
-        <div className="container mx-auto py-12 px-4">
-            <div className="bg-base-100 rounded-3xl shadow-2xl overflow-hidden">
+        <div className="container mx-auto py-12 px-4 relative">
+            {/* Checkout Modal */}
+            {showCheckout && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 animate-slide-up">
+                        <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Secure Checkout
+                        </h2>
+
+                        <div className="space-y-4">
+                            <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <h3 className="font-semibold text-gray-700 mb-2">Order Summary</h3>
+                                <div className="flex justify-between text-sm mb-1">
+                                    <span>{product.title} (x1)</span>
+                                    <span>${product.price}</span>
+                                </div>
+                                <div className="flex justify-between text-sm mb-1 text-gray-500">
+                                    <span>Shipping Estimate</span>
+                                    <span>${shippingInfo.cost}</span>
+                                </div>
+                                <div className="flex justify-between text-sm mb-2 text-info">
+                                    <span>Estimated Delivery</span>
+                                    <span>{shippingInfo.date}</span>
+                                </div>
+                                <div className="divider my-1"></div>
+                                <div className="flex justify-between text-lg font-bold">
+                                    <span>Total</span>
+                                    <span>${product.price + shippingInfo.cost}</span>
+                                </div>
+                            </div>
+
+                            <form className="space-y-3">
+                                <div>
+                                    <label className="label cursor-pointer justify-start gap-2">
+                                        <span className="label-text font-semibold">Shipping Address</span>
+                                    </label>
+                                    <input ref={addressRef} type="text" placeholder="123 Main St, City, Country" className="input input-bordered w-full" defaultValue="123 Smart St, Tech City" />
+                                </div>
+
+                                <div>
+                                    <label className="label cursor-pointer justify-start gap-2">
+                                        <span className="label-text font-semibold">Payment Method</span>
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <button type="button" className="btn btn-outline btn-sm btn-active flex-1">Credit Card</button>
+                                        <button type="button" className="btn btn-outline btn-sm flex-1">PayPal</button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="label">
+                                        <span className="label-text">Card Number (Mock)</span>
+                                    </label>
+                                    <input type="text" placeholder="**** **** **** 1234" className="input input-bordered w-full" disabled defaultValue="**** **** **** 4242" />
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className="modal-action mt-6">
+                            <button onClick={() => setShowCheckout(false)} className="btn btn-ghost">Cancel</button>
+                            <button onClick={handlePlaceOrder} className="btn btn-primary px-8">Pay & Place Order</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className={`bg-base-100 rounded-3xl shadow-2xl overflow-hidden ${showCheckout ? 'blur-sm' : ''}`}>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                     <div className="h-[400px] lg:h-[600px] bg-gray-100 relative">
                         <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover" />
