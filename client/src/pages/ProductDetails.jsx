@@ -128,7 +128,7 @@ const ProductDetails = () => {
                                 <h3 className="font-semibold text-gray-700 mb-2">Order Summary</h3>
                                 <div className="flex justify-between items-center text-sm mb-2">
                                     <span>{product.title}</span>
-                                    <span className="font-bold">${product.price}</span>
+                                    <span className="font-bold">${product.price?.toFixed(2)}</span>
                                 </div>
 
                                 {/* Quantity Selector */}
@@ -143,7 +143,7 @@ const ProductDetails = () => {
 
                                 <div className="flex justify-between text-sm mb-1 text-gray-500">
                                     <span>Shipping Estimate</span>
-                                    <span>${shippingInfo.cost}</span>
+                                    <span>${shippingInfo.cost.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm mb-2 text-info">
                                     <span>Estimated Delivery</span>
@@ -208,7 +208,7 @@ const ProductDetails = () => {
                         <p className="text-lg text-gray-600 mb-8 leading-relaxed">{product.description}</p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-auto">
-                            <span className="text-4xl font-bold text-primary">${product.price}</span>
+                            <span className="text-4xl font-bold text-primary">${product.price?.toFixed(2)}</span>
                             {isAdmin ? (
                                 <button disabled className="btn btn-disabled btn-lg w-full sm:w-auto px-12">Admin View</button>
                             ) : (

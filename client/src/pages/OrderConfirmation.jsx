@@ -41,7 +41,7 @@ const OrderConfirmation = () => {
                         <div className="divider my-2"></div>
                         <div className="flex justify-between text-xl font-bold">
                             <span>Total Amount</span>
-                            <span>${order.totalAmount}</span>
+                            <span>${order.totalAmount.toFixed(2)}</span>
                         </div>
                     </div>
 

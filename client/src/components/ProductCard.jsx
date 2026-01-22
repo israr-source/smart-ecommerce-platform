@@ -73,7 +73,7 @@ const ProductCard = ({ product }) => {
                 <h2 className="card-title text-lg font-bold line-clamp-1">{product.title}</h2>
                 <p className="text-sm text-gray-500 line-clamp-2">{product.description}</p>
                 <div className="card-actions justify-between items-center mt-4">
-                    <span className="text-xl font-bold text-primary">${product.price}</span>
+                    <span className="text-xl font-bold text-primary">${product.price.toFixed(2)}</span>
                     <Link to={`/products/${product._id}`} className="btn btn-primary btn-sm px-6 rounded-full shadow-md">View</Link>
                 </div>
             </div>

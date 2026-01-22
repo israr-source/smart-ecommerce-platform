@@ -183,7 +183,7 @@ const AdminDashboard = () => {
                                         <img src={product.imageUrl} alt={product.title} className="w-16 h-16 object-cover rounded" />
                                         <div>
                                             <h4 className="font-bold">{product.title}</h4>
-                                            <p className="text-sm text-gray-500">${product.price}</p>
+                                            <p className="text-sm text-gray-500">${product.price.toFixed(2)}</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
@@ -222,7 +222,7 @@ const AdminDashboard = () => {
                                                     <div className="text-sm opacity-50">{order.userId?.email}</div>
                                                 </div>
                                             </td>
-                                            <td>${order.totalAmount}</td>
+                                            <td>${order.totalAmount.toFixed(2)}</td>
                                             <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                                             <td>
                                                 <span className={`badge ${order.status === 'delivered' ? 'badge-success' : order.status === 'shipping' ? 'badge-info' : 'badge-warning'}`}>

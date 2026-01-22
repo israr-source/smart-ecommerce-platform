@@ -173,6 +173,29 @@ const Dashboard = () => {
     };
 
 
+    const handleRemoveFromWishlist = async (productId) => {
+        if (!window.confirm('Remove from wishlist?')) return;
+        try {
+            const userData = JSON.parse(localStorage.getItem('user'));
+            const res = await fetch(`/api/users/${userData._id}/wishlist`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+            });
+            if (res.ok) {
+                // Remove from local state immediately
+                setWishlistProducts(prev => prev.filter(p => p._id !== productId));
+                // Update local storage user object if needed (wishlist array)
+                const updatedIds = await res.json();
+                userData.wishlist = updatedIds;
+                localStorage.setItem('user', JSON.stringify(userData));
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
     // Stats Calculation
     const totalSpent = orders.reduce((acc, order) => acc + (order.status !== 'cancelled' ? order.totalAmount : 0), 0);
     const activeOrdersCount = orders.filter(o => o.status === 'pending' || o.status === 'shipped').length;
@@ -297,7 +320,7 @@ const Dashboard = () => {
                                                                 {product.type || 'product'}
                                                             </span>
                                                         </td>
-                                                        <td className="font-mono">${product.price}</td>
+                                                        <td className="font-mono">${product.price.toFixed(2)}</td>
                                                         <td>{product.stock}</td>
                                                         <td>
                                                             <button onClick={() => handleEditProduct(product)} className="btn btn-ghost btn-xs text-warning mr-2">Edit</button>
@@ -337,10 +360,15 @@ const Dashboard = () => {
                                                             <h3 className="card-title text-base font-bold truncate">{product.title}</h3>
                                                             <p className="text-sm text-gray-500 line-clamp-1 h-5">{product.description}</p>
                                                             <div className="flex justify-between items-center mt-3">
-                                                                <span className="text-lg font-bold text-primary">${product.price}</span>
-                                                                <a href={`/products/${product._id}`} className="btn btn-sm btn-circle btn-primary">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                                                </a>
+                                                                <span className="text-lg font-bold text-primary">${product.price?.toFixed(2)}</span>
+                                                                <div className="flex gap-2">
+                                                                    <a href={`/products/${product._id}`} className="btn btn-sm btn-circle btn-primary" title="View Product">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                                    </a>
+                                                                    <button onClick={() => handleRemoveFromWishlist(product._id)} className="btn btn-sm btn-circle btn-error btn-outline" title="Remove from Wishlist">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -403,7 +431,7 @@ const Dashboard = () => {
                                                                     <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                                                                 </div>
                                                                 <div className="text-right">
-                                                                    {item.productId?.price && <p className="font-bold">${item.productId.price * item.quantity}</p>}
+                                                                    {item.productId?.price && <p className="font-bold">${(item.productId.price * item.quantity).toFixed(2)}</p>}
                                                                 </div>
                                                             </div>
                                                         ))}
@@ -425,7 +453,7 @@ const Dashboard = () => {
                                                         </div>
 
                                                         <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                                                            <div className="text-lg font-bold mr-4">Total: ${order.totalAmount}</div>
+                                                            <div className="text-lg font-bold mr-4">Total: ${order.totalAmount.toFixed(2)}</div>
 
                                                             {order.status === 'pending' && (
                                                                 <>
