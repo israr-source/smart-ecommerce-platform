@@ -1,13 +1,17 @@
 import { signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
     const navigate = useNavigate();
     const [loginType, setLoginType] = useState('user'); // 'user' or 'admin'
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     const [isSignUp, setIsSignUp] = useState(false);
     const [email, setEmail] = useState('');

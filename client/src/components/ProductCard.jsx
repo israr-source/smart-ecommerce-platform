@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 const ProductCard = ({ product }) => {
@@ -21,38 +21,33 @@ const ProductCard = ({ product }) => {
         }
     }, [product._id]);
 
+    const navigate = useNavigate();
+
     const toggleWishlist = async () => {
         const user = JSON.parse(localStorage.getItem('user'));
 
-        if (user && user._id) {
-            // Server Sync
-            try {
-                const res = await fetch(`/api/users/${user._id}/wishlist`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productId: product._id })
-                });
-                if (res.ok) {
-                    const updatedWishlist = await res.json();
-                    // Update local user object
-                    user.wishlist = updatedWishlist;
-                    localStorage.setItem('user', JSON.stringify(user));
-                    setIsWishlisted(updatedWishlist.includes(product._id));
-                }
-            } catch (error) {
-                console.error("Wishlist sync failed", error);
+        if (!user || !user._id) {
+            alert('Please login first to add items to your wishlist');
+            navigate('/login');
+            return;
+        }
+
+        // Server Sync
+        try {
+            const res = await fetch(`/api/users/${user._id}/wishlist`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId: product._id })
+            });
+            if (res.ok) {
+                const updatedWishlist = await res.json();
+                // Update local user object
+                user.wishlist = updatedWishlist;
+                localStorage.setItem('user', JSON.stringify(user));
+                setIsWishlisted(updatedWishlist.includes(product._id));
             }
-        } else {
-            // Local Storage (Guest)
-            const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
-            let newWishlist;
-            if (isWishlisted) {
-                newWishlist = wishlist.filter(id => id !== product._id);
-            } else {
-                newWishlist = [...wishlist, product._id];
-            }
-            localStorage.setItem('wishlist', JSON.stringify(newWishlist));
-            setIsWishlisted(!isWishlisted);
+        } catch (error) {
+            console.error("Wishlist sync failed", error);
         }
     };
 
