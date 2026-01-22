@@ -135,7 +135,7 @@ const AdminDashboard = () => {
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
-            <div className="w-64 bg-slate-900 text-white flex flex-col p-4">
+            <div className="w-64 bg-slate-900 text-white flex flex-col p-4 h-full overflow-hidden shrink-0">
                 <h1 className="text-2xl font-bold mb-8">Admin Dashboard</h1>
                 <nav className="flex-1 space-y-2">
                     <button onClick={() => setActiveTab('products')} className={`w-full text-left px-4 py-2 rounded ${activeTab === 'products' ? 'bg-indigo-600' : 'hover:bg-slate-800'}`}>Products</button>

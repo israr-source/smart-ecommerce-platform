@@ -4,10 +4,20 @@ const ReviewsSection = ({ productId }) => {
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
     const [loading, setLoading] = useState(true);
+    const [currentSlide, setCurrentSlide] = useState(0);
 
     useEffect(() => {
         fetchReviews();
     }, [productId]);
+
+    useEffect(() => {
+        if (reviews.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentSlide((prev) => (prev + 1) % reviews.length);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [reviews]);
 
     const fetchReviews = async () => {
         try {
@@ -57,6 +67,45 @@ const ReviewsSection = ({ productId }) => {
     return (
         <div className="mt-16">
             <h2 className="text-3xl font-bold mb-8 text-gray-800">Customer Reviews</h2>
+
+            {/* Sliding Review Banner */}
+            {reviews.length > 1 && (
+                <div className="w-full bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl shadow-xl mb-12 overflow-hidden relative h-64 flex items-center justify-center">
+                    {reviews.map((review, index) => (
+                        <div
+                            key={review._id}
+                            className={`absolute inset-0 flex flex-col items-center justify-center p-8 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                        >
+                            <div className="avatar placeholder mb-4">
+                                <div className="bg-white text-indigo-600 rounded-full w-16 text-2xl font-bold shadow-md">
+                                    <span>{review.userId?.name?.[0] || 'U'}</span>
+                                </div>
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-2">{review.userId?.name || 'User'}</h3>
+                            <div className="rating rating-md mb-4">
+                                {[...Array(5)].map((_, i) => (
+                                    <input
+                                        key={i}
+                                        type="radio"
+                                        className="mask mask-star-2 bg-yellow-400"
+                                        checked={i < review.rating}
+                                        readOnly
+                                    />
+                                ))}
+                            </div>
+                            <p className="text-indigo-100 text-lg text-center italic max-w-2xl">"{review.comment}"</p>
+                        </div>
+                    ))}
+                    <div className="absolute bottom-4 flex gap-2">
+                        {reviews.map((_, index) => (
+                            <div
+                                key={index}
+                                className={`w-2 h-2 rounded-full transition-all ${index === currentSlide ? 'bg-white w-4' : 'bg-white/40'}`}
+                            ></div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                 {/* Reviews List */}

@@ -76,7 +76,7 @@ const AppContent = () => {
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </main>
-      <Footer />
+      {!location.pathname.startsWith('/admin') && <Footer />}
     </div>
   );
 };
