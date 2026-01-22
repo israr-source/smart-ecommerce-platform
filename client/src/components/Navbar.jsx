@@ -4,6 +4,15 @@ import { FiShoppingBag } from 'react-icons/fi';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
+
+    // Safer user parsing
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+        console.error("Error parsing user from local storage", e);
+    }
+
     const navLinkClass = ({ isActive }) =>
         `text-xl font-bold transition-all duration-300 px-4 py-2 rounded-full ${isActive ? 'text-primary bg-primary/10 scale-105' : 'text-slate-600 hover:text-primary hover:bg-base-200 hover:scale-105'}`;
 
@@ -28,7 +37,7 @@ const Navbar = () => {
                     <div className="dropdown dropdown-end">
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar border-2 border-primary">
                             <div className="w-10 rounded-full">
-                                <img alt="User" src={JSON.parse(localStorage.getItem('user'))?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(JSON.parse(localStorage.getItem('user'))?.name || 'User')}&background=random`} />
+                                <img alt="User" src={user?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=random`} />
                             </div>
                         </div>
                         <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-52">
@@ -71,7 +80,7 @@ const Navbar = () => {
                         <li><NavLink to="/products" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>Products</NavLink></li>
                         <li><NavLink to="/contact" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>Contact</NavLink></li>
                         {localStorage.getItem('token') && (
-                            JSON.parse(localStorage.getItem('user') || '{}').role === 'admin' ? (
+                            user?.role === 'admin' ? (
                                 <li><NavLink to="/admin/dashboard" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>Dashboard</NavLink></li>
                             ) : (
                                 <li><NavLink to="/dashboard" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>Dashboard</NavLink></li>
