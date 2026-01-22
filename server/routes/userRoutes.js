@@ -32,4 +32,42 @@ router.post('/sync', async (req, res) => {
     }
 });
 
+
+
+// GET /api/users/:id/wishlist - Get User Wishlist
+router.get('/:id/wishlist', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).populate('wishlist');
+        if (user) {
+            res.json(user.wishlist);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
+// PUT /api/users/:id/wishlist - Toggle Wishlist Item
+router.put('/:id/wishlist', async (req, res) => {
+    const { productId } = req.body;
+    try {
+        const user = await User.findById(req.params.id);
+        if (user) {
+            const index = user.wishlist.indexOf(productId);
+            if (index === -1) {
+                user.wishlist.push(productId); // Add
+            } else {
+                user.wishlist.splice(index, 1); // Remove
+            }
+            await user.save();
+            res.json(user.wishlist);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
 module.exports = router;
