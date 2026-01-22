@@ -3,6 +3,16 @@ const router = express.Router();
 const Order = require('../models/Order');
 const { protect, protectAdmin } = require('../middleware/auth');
 
+// DELETE /api/orders/cancelled - Delete all cancelled orders (Admin only)
+router.delete('/cancelled', protectAdmin, async (req, res) => {
+    try {
+        const result = await Order.deleteMany({ status: 'cancelled' });
+        res.json({ message: 'Cancelled orders removed', count: result.deletedCount });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
 // GET /api/orders/all - Get all orders (Admin only)
 router.get('/all', protectAdmin, async (req, res) => {
     try {

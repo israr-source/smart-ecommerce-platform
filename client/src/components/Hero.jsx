@@ -12,60 +12,107 @@ const Hero = () => {
     );
 }
 
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const SlidingHero = () => {
+    const carouselRef = useRef(null);
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    const slides = [
+        {
+            id: 'slide1',
+            image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1600&q=80',
+            title: <>Experience the <br /><span className="text-primary">Future of Living</span></>,
+            desc: "Upgrade your world with cutting-edge smart gadgets designed for modern life.",
+            link: "/products",
+            btnText: "Shop Now",
+            btnClass: "btn-primary border-none shadow-xl",
+            align: 'left',
+            bgGradient: 'bg-gradient-to-r from-black/80 via-black/40 to-transparent'
+        },
+        {
+            id: 'slide2',
+            image: 'https://images.unsplash.com/photo-1510017803434-a899398421b3?w=1600&q=80',
+            title: "Seamless Connectivity",
+            desc: "Stay connected with our premium range of wearables.",
+            link: "/products?category=Wearables",
+            btnText: "Explore Wearables",
+            btnClass: "btn-outline btn-wide text-white border-white hover:bg-white hover:text-black",
+            align: 'center',
+            bgGradient: 'bg-gradient-to-t from-black/80 via-transparent to-transparent items-end pb-20 justify-center'
+        },
+        {
+            id: 'slide3',
+            image: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1600&q=80',
+            title: <>Smart Home <br /><span className="text-secondary">Revolution</span></>,
+            desc: "Seamless Connectivity. Stay connected with our premium range of smart home devices.",
+            link: "/products?category=Smart Home",
+            btnText: "Shop Smart Home",
+            btnClass: "btn-secondary border-none shadow-xl",
+            align: 'right',
+            bgGradient: 'bg-gradient-to-l from-black/80 via-black/40 to-transparent items-center justify-end pr-20'
+        }
+    ];
+
+    const scrollToSlide = (index) => {
+        if (carouselRef.current) {
+            const width = carouselRef.current.clientWidth;
+            carouselRef.current.scrollTo({
+                left: width * index,
+                behavior: 'smooth'
+            });
+            setCurrentSlide(index);
+        }
+    };
+
+    const nextSlide = () => {
+        const next = (currentSlide + 1) % slides.length;
+        scrollToSlide(next);
+    };
+
+    const prevSlide = () => {
+        const prev = (currentSlide - 1 + slides.length) % slides.length;
+        scrollToSlide(prev);
+    };
+
+    const handleScroll = () => {
+        if (carouselRef.current) {
+            const width = carouselRef.current.clientWidth;
+            const scrollPos = carouselRef.current.scrollLeft;
+            const index = Math.round(scrollPos / width);
+            setCurrentSlide(index);
+        }
+    };
+
     return (
-        <div className="carousel w-full h-[600px] relative mt-[-64px]">
-            {/* Slide 1 */}
-            <div id="slide1" className="carousel-item relative w-full">
-                <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1600&q=80" alt="Smart Home Setup" className="w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex items-center pl-20">
-                    <div className="max-w-xl text-white">
-                        <h1 className="mb-5 text-6xl font-bold leading-tight drop-shadow-lg">Experience the <br /><span className="text-primary">Future of Living</span></h1>
-                        <p className="mb-8 text-xl font-light opacity-90">Upgrade your world with cutting-edge smart gadgets designed for modern life.</p>
-                        <Link to="/products" className="btn btn-primary border-none shadow-xl px-10 btn-lg rounded-full">Shop Now</Link>
+        <div className="relative w-full mt-[-64px]">
+            <div
+                className="carousel w-full h-[600px] scroll-smooth"
+                ref={carouselRef}
+                onScroll={handleScroll}
+            >
+                {slides.map((slide) => (
+                    <div key={slide.id} id={slide.id} className="carousel-item relative w-full">
+                        <img src={slide.image} alt="Banner" className="w-full object-cover" />
+                        <div className={`absolute inset-0 flex ${slide.align === 'center' ? 'text-center' : slide.align === 'left' ? 'items-center pl-20' : ''} ${slide.bgGradient}`}>
+                            <div className={`text-white max-w-xl ${slide.align === 'right' ? 'text-right' : ''}`}>
+                                <h1 className="mb-5 text-5xl lg:text-6xl font-bold leading-tight drop-shadow-lg">{slide.title}</h1>
+                                <p className="mb-8 text-xl font-light opacity-90">{slide.desc}</p>
+                                <Link to={slide.link} className={`btn btn-lg rounded-full px-10 ${slide.btnClass}`}>{slide.btnText}</Link>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2 z-10">
-                    <a href="#slide3" className="btn btn-circle glass text-white border-none hover:bg-white/20">❮</a>
-                    <a href="#slide2" className="btn btn-circle glass text-white border-none hover:bg-white/20">❯</a>
-                </div>
+                ))}
             </div>
 
-            {/* Slide 2 */}
-            <div id="slide2" className="carousel-item relative w-full">
-                <img src="https://images.unsplash.com/photo-1510017803434-a899398421b3?w=1600&q=80" alt="Smart Watch" className="w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end pb-20 justify-center">
-                    <div className="text-center text-white max-w-2xl px-4">
-                        <h1 className="mb-4 text-5xl font-bold drop-shadow-lg">Seamless Connectivity</h1>
-                        <p className="mb-6 text-lg">Stay connected with our premium range of wearables.</p>
-                        <Link to="/products?category=Wearables" className="btn btn-outline btn-wide text-white border-white hover:bg-white hover:text-black">Explore Wearables</Link>
-                    </div>
-                </div>
-                <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2 z-10">
-                    <a href="#slide1" className="btn btn-circle glass text-white border-none hover:bg-white/20">❮</a>
-                    <a href="#slide3" className="btn btn-circle glass text-white border-none hover:bg-white/20">❯</a>
-                </div>
-            </div>
-
-            {/* Slide 3 */}
-            <div id="slide3" className="carousel-item relative w-full">
-                <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1600&q=80" alt="Smart Home" className="w-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-black/40 to-transparent flex items-center justify-end pr-20">
-                    <div className="max-w-xl text-white text-right">
-                        <h1 className="mb-5 text-6xl font-bold leading-tight drop-shadow-lg">Smart Home <br /><span className="text-secondary">Revolution</span></h1>
-                        <p className="mb-8 text-xl font-light opacity-90">Seamless Connectivity. Stay connected with our premium range of smart home devices.</p>
-                        <Link to="/products?category=Smart Home" className="btn btn-secondary border-none shadow-xl px-10 btn-lg rounded-full">Shop Smart Home</Link>
-                    </div>
-                </div>
-                <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2 z-10">
-                    <a href="#slide2" className="btn btn-circle glass text-white border-none hover:bg-white/20">❮</a>
-                    <a href="#slide1" className="btn btn-circle glass text-white border-none hover:bg-white/20">❯</a>
-                </div>
+            {/* Navigation Buttons Overlay */}
+            <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2 z-10 pointer-events-none">
+                <button onClick={prevSlide} className={`btn btn-circle glass text-white border-none hover:bg-white/20 pointer-events-auto ${currentSlide === 0 ? 'opacity-0 pointer-events-none' : ''}`}>❮</button>
+                <button onClick={nextSlide} className={`btn btn-circle glass text-white border-none hover:bg-white/20 pointer-events-auto ${currentSlide === slides.length - 1 ? 'opacity-0 pointer-events-none' : ''}`}>❯</button>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default SlidingHero;
