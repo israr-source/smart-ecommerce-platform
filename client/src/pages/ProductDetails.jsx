@@ -9,6 +9,7 @@ const ProductDetails = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         fetch(`/api/products/${id}`)
             .then(res => res.json())
             .then(data => {
@@ -26,6 +27,14 @@ const ProductDetails = () => {
     const [quantity, setQuantity] = useState(1);
     const addressRef = useRef();
     const [shippingInfo, setShippingInfo] = useState({ cost: 0, date: '' });
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.role === 'admin') {
+            setIsAdmin(true);
+        }
+    }, []);
 
     const handleBuyNow = () => {
         const token = localStorage.getItem('token');
@@ -200,7 +209,11 @@ const ProductDetails = () => {
 
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-auto">
                             <span className="text-4xl font-bold text-primary">${product.price}</span>
-                            <button onClick={handleBuyNow} className="btn btn-primary btn-lg w-full sm:w-auto px-12 shadow-xl hover:scale-105 transition-transform">Buy Now</button>
+                            {isAdmin ? (
+                                <button disabled className="btn btn-disabled btn-lg w-full sm:w-auto px-12">Admin View</button>
+                            ) : (
+                                <button onClick={handleBuyNow} className="btn btn-primary btn-lg w-full sm:w-auto px-12 shadow-xl hover:scale-105 transition-transform">Buy Now</button>
+                            )}
                         </div>
 
                         <div className="divider my-8"></div>

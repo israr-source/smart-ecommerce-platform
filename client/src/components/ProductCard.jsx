@@ -3,10 +3,15 @@ import { useState, useEffect } from 'react';
 
 const ProductCard = ({ product }) => {
     const [isWishlisted, setIsWishlisted] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         // Check if user is logged in
         const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.role === 'admin') {
+            setIsAdmin(true);
+        }
+
         if (user && user.wishlist) {
             setIsWishlisted(user.wishlist.includes(product._id));
         } else {
@@ -57,14 +62,16 @@ const ProductCard = ({ product }) => {
                 <img src={product.imageUrl} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
             </figure>
-            <button
-                onClick={toggleWishlist}
-                className={`absolute top-4 right-4 btn btn-circle btn-sm border-none shadow-md ${isWishlisted ? 'btn-secondary text-white' : 'btn-ghost bg-white/80 hover:bg-white'}`}
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill={isWishlisted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-            </button>
+            {!isAdmin && (
+                <button
+                    onClick={toggleWishlist}
+                    className={`absolute top-4 right-4 btn btn-circle btn-sm border-none shadow-md ${isWishlisted ? 'btn-secondary text-white' : 'btn-ghost bg-white/80 hover:bg-white'}`}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill={isWishlisted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </button>
+            )}
 
             <div className="card-body p-6">
                 <div className="badge badge-outline mb-2 text-xs text-gray-400">{product.category}</div>

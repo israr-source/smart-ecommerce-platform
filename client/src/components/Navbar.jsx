@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { FiShoppingBag } from 'react-icons/fi';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +17,10 @@ const Navbar = () => {
                 {/* Empty start for centering alignment if needed, or just flex-1 */}
             </div>
             <div className="navbar-center">
-                <Link to="/" className="btn btn-ghost text-4xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent transform hover:scale-105 transition-transform">Shoply</Link>
+                <Link to="/" className="text-4xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent transform hover:scale-105 transition-transform flex items-center gap-2">
+                    <span className="text-secondary"><FiShoppingBag /></span>
+                    Shoply
+                </Link>
             </div>
             <div className="navbar-end flex gap-2">
                 {/* Login / Logout Section */}
@@ -28,6 +32,7 @@ const Navbar = () => {
                             </div>
                         </div>
                         <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-52">
+                            <li><button onClick={() => window.location.href = '/profile'}>Profile</button></li>
                             <li><button onClick={() => {
                                 localStorage.removeItem('token');
                                 localStorage.removeItem('user');
@@ -65,7 +70,13 @@ const Navbar = () => {
                         <li><NavLink to="/about" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>About Us</NavLink></li>
                         <li><NavLink to="/products" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>Products</NavLink></li>
                         <li><NavLink to="/contact" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>Contact</NavLink></li>
-                        {localStorage.getItem('token') && <li><NavLink to="/dashboard" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>Dashboard</NavLink></li>}
+                        {localStorage.getItem('token') && (
+                            JSON.parse(localStorage.getItem('user') || '{}').role === 'admin' ? (
+                                <li><NavLink to="/admin/dashboard" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>Dashboard</NavLink></li>
+                            ) : (
+                                <li><NavLink to="/dashboard" onClick={handleLinkClick} className={({ isActive }) => `text-xl py-3 ${isActive ? "text-primary font-bold" : ""}`}>Dashboard</NavLink></li>
+                            )
+                        )}
                     </ul>
                 </div>
             </div>

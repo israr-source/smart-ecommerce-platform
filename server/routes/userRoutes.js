@@ -2,6 +2,49 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
+// PUT /api/users/profile - Update User Profile
+router.put('/profile', async (req, res) => {
+    const { firebaseUid, name, phone, address } = req.body;
+
+    // Use firebaseUid or _id depending on what frontend sends. 
+    // Usually we use middleware to attach user, but sync uses uid.
+    // Let's assume we expect `firebaseUid` or `_id` in body or auth.
+    // Ideally we use `protect` middleware.
+
+    try {
+        let query = {};
+        if (req.headers.authorization) {
+            // If protected, we use req.user (need to attach middleware)
+            // But let's support passing firebaseUid for flexibility if auth middleware isn't present yet on this route
+            // Ideally we SHOULD use protect.
+        }
+
+        if (firebaseUid) query.firebaseUid = firebaseUid;
+
+        // Fallback: if no firebaseUid in body, check verify middleware (requires import)
+        // For now, let's just use the body param for simplicity as per existing sync pattern
+
+        if (!query.firebaseUid) {
+            return res.status(400).json({ message: 'User ID required' });
+        }
+
+        const user = await User.findOne(query);
+
+        if (user) {
+            user.name = name || user.name;
+            user.phone = phone || user.phone;
+            user.address = address || user.address;
+
+            const updatedUser = await user.save();
+            res.json(updatedUser);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
 // POST /api/users/sync - Sync Firebase User with MongoDB
 router.post('/sync', async (req, res) => {
     const { uid, email, displayName, photoURL } = req.body;

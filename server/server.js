@@ -19,12 +19,40 @@ const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const userRoutes = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const User = require('./models/User');
+const bcrypt = require('bcryptjs');
 
 // Routes
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Seed Admin User
+const seedAdmin = async () => {
+    try {
+        const adminEmail = 'admin@shoply.com';
+        const adminExists = await User.findOne({ email: adminEmail });
+        if (!adminExists) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash('admin', salt);
+
+            await User.create({
+                name: 'System Admin',
+                email: adminEmail,
+                password: hashedPassword,
+                role: 'admin',
+                firebaseUid: 'admin_sys_' + Date.now() // specific dummy UID
+            });
+            console.log('Admin user seeded');
+        }
+    } catch (error) {
+        console.error('Admin seeding failed:', error);
+    }
+};
+seedAdmin();
 
 app.get('/api/test', (req, res) => {
     res.json({ message: 'Server is running!' });

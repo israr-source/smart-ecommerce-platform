@@ -15,6 +15,15 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user',
     },
+    password: {
+        type: String, // Only for admin
+    },
+    phone: {
+        type: String,
+    },
+    address: {
+        type: String, // Simple string for now, could be object later
+    },
     firebaseUid: {
         type: String,
         required: true,

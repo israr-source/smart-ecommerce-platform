@@ -1,7 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
-const { protect } = require('../middleware/auth');
+const { protect, protectAdmin } = require('../middleware/auth');
+
+// GET /api/orders/all - Get all orders (Admin only)
+router.get('/all', protectAdmin, async (req, res) => {
+    try {
+        const orders = await Order.find({}).sort({ createdAt: -1 }).populate('products.productId', 'title imageUrl').populate('userId', 'name email');
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
 
 // POST /api/orders - Create new order
 router.post('/', protect, async (req, res) => {
@@ -63,7 +73,23 @@ router.get('/myorders', protect, async (req, res) => {
     }
 });
 
-// PUT /api/orders/:id - Update order (Status / Address)
+// PUT /api/orders/:id/status - Update order status (Admin only)
+router.put('/:id/status', protectAdmin, async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (order) {
+            order.status = req.body.status;
+            const updatedOrder = await order.save();
+            res.json(updatedOrder);
+        } else {
+            res.status(404).json({ message: 'Order not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error', error: error.message });
+    }
+});
+
+// PUT /api/orders/:id - Update order (Address/Legacy) by User
 router.put('/:id', protect, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);

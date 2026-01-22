@@ -1,19 +1,22 @@
-import { signInWithPopup, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
     const navigate = useNavigate();
+    const [loginType, setLoginType] = useState('user'); // 'user' or 'admin'
 
-    const handleLogin = async (provider) => {
+    const [isSignUp, setIsSignUp] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+
+    const syncUserWithBackend = async (user) => {
         try {
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
             const token = await user.getIdToken();
-
-            // Sync with backend
             const res = await fetch('/api/users/sync', {
                 method: 'POST',
                 headers: {
@@ -23,7 +26,7 @@ const Login = () => {
                 body: JSON.stringify({
                     uid: user.uid,
                     email: user.email,
-                    displayName: user.displayName,
+                    displayName: user.displayName || name || 'User', // Use form name if displayName is missing
                     photoURL: user.photoURL
                 })
             });
@@ -41,8 +44,61 @@ const Login = () => {
                 alert("Login failed during sync");
             }
         } catch (error) {
+            console.error("Sync error:", error);
+            alert("Error syncing user");
+        }
+    };
+
+    const handleLogin = async (provider) => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            await syncUserWithBackend(result.user);
+        } catch (error) {
             console.error("Login failed:", error);
             alert(error.message);
+        }
+    };
+
+    const handleEmailAuth = async (e) => {
+        e.preventDefault();
+        try {
+            let result;
+            if (isSignUp) {
+                result = await createUserWithEmailAndPassword(auth, email, password);
+                // Can update profile with name here if needed, but sync handles it
+            } else {
+                result = await signInWithEmailAndPassword(auth, email, password);
+            }
+            await syncUserWithBackend(result.user);
+        } catch (error) {
+            console.error("Email auth failed:", error);
+            alert(error.message);
+        }
+    };
+
+    const handleAdminLogin = async (e) => {
+        e.preventDefault();
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+
+        try {
+            const res = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem('token', data.token); // Store as generic token for now, or handle separate adminToken
+                // Actually, existing Navbar checks 'token'. Storing here is fine as long as we distinguish role.
+                localStorage.setItem('user', JSON.stringify({ ...data, photoURL: 'https://ui-avatars.com/api/?name=Admin+User' }));
+                window.location.href = '/admin/dashboard'; // Force reload to update Navbar state or navigate
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Login failed');
         }
     };
 
@@ -70,23 +126,76 @@ const Login = () => {
                         <p className="text-gray-500">Sign in to continue your journey</p>
                     </div>
 
-                    <div className="space-y-4 mt-8">
-                        <button
-                            onClick={handleGoogleLogin}
-                            className="w-full flex items-center justify-center gap-3 px-6 py-4 border border-gray-300 rounded-xl shadow-sm bg-white text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all duration-300 font-medium group"
-                        >
-                            <FcGoogle className="text-2xl group-hover:scale-110 transition-transform" />
-                            <span>Continue with Google</span>
-                        </button>
-
-                        <button
-                            onClick={handleGithubLogin}
-                            className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl shadow-lg bg-[#24292e] text-white hover:bg-[#2f363d] hover:shadow-xl transition-all duration-300 font-medium group"
-                        >
-                            <FaGithub className="text-2xl group-hover:scale-110 transition-transform" />
-                            <span>Continue with GitHub</span>
-                        </button>
+                    {/* Tabs */}
+                    <div role="tablist" className="tabs tabs-boxed mb-4">
+                        <a role="tab" className={`tab ${loginType === 'user' ? 'tab-active' : ''}`} onClick={() => setLoginType('user')}>User Login</a>
+                        <a role="tab" className={`tab ${loginType === 'admin' ? 'tab-active' : ''}`} onClick={() => setLoginType('admin')}>Admin Login</a>
                     </div>
+
+                    {loginType === 'user' ? (
+                        <>
+                            <form onSubmit={handleEmailAuth} className="space-y-4">
+                                {isSignUp && (
+                                    <div className="form-control">
+                                        <label className="label"><span className="label-text">Name</span></label>
+                                        <input type="text" placeholder="John Doe" className="input input-bordered" value={name} onChange={(e) => setName(e.target.value)} required />
+                                    </div>
+                                )}
+                                <div className="form-control">
+                                    <label className="label"><span className="label-text">Email</span></label>
+                                    <input type="email" placeholder="user@example.com" className="input input-bordered" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                                </div>
+                                <div className="form-control">
+                                    <label className="label"><span className="label-text">Password</span></label>
+                                    <input type="password" placeholder="********" className="input input-bordered" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                                </div>
+                                <button type="submit" className="btn btn-primary w-full shadow-lg">{isSignUp ? 'Sign Up' : 'Login'}</button>
+
+                                <div className="text-center text-sm">
+                                    <span className="text-gray-500">{isSignUp ? 'Already have an account?' : "Don't have an account?"}</span>
+                                    <button type="button" onClick={() => setIsSignUp(!isSignUp)} className="ml-2 text-primary font-bold hover:underline">
+                                        {isSignUp ? 'Login' : 'Sign Up'}
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div className="divider">OR</div>
+
+                            <div className="space-y-4">
+                                <button
+                                    onClick={handleGoogleLogin}
+                                    className="w-full flex items-center justify-center gap-3 px-6 py-4 border border-gray-300 rounded-xl shadow-sm bg-white text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all duration-300 font-medium group"
+                                >
+                                    <FcGoogle className="text-2xl group-hover:scale-110 transition-transform" />
+                                    <span>Continue with Google</span>
+                                </button>
+
+                                <button
+                                    onClick={handleGithubLogin}
+                                    className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl shadow-lg bg-[#24292e] text-white hover:bg-[#2f363d] hover:shadow-xl transition-all duration-300 font-medium group"
+                                >
+                                    <FaGithub className="text-2xl group-hover:scale-110 transition-transform" />
+                                    <span>Continue with GitHub</span>
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <form onSubmit={handleAdminLogin} className="space-y-4 mt-8">
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text">Email</span>
+                                </label>
+                                <input name="email" type="email" placeholder="admin@shoply.com" className="input input-bordered" required />
+                            </div>
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text">Password</span>
+                                </label>
+                                <input name="password" type="password" placeholder="admin" className="input input-bordered" required />
+                            </div>
+                            <button type="submit" className="btn btn-primary w-full">Login as Admin</button>
+                        </form>
+                    )}
 
                     <div className="text-center mt-8">
                         <p className="text-sm text-gray-400">

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AdminProductForm from '../components/AdminProductForm';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     // Mock user/role - in real app, get from Context/LocalStorage
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
     // For demo: verify role logic. We need a way to 'fake' admin if needed or use real from DB 
@@ -23,9 +25,17 @@ const Dashboard = () => {
 
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (storedUser.role === 'admin') {
+            navigate('/admin/dashboard'); // Redirect Admin to proper dashboard
+            return;
+        }
+
         // Basic check, in reality we should validate with backend
         if (storedUser.email === 'admin@example.com') { // Simple hardcoded admin check for demo or check property
-            setRole('admin');
+            // Legacy check, ideally use role
+            navigate('/admin/dashboard');
+            return;
         } else if (storedUser.role) {
             setRole(storedUser.role);
         }
