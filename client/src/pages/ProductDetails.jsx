@@ -28,6 +28,7 @@ const ProductDetails = () => {
     const addressRef = useRef();
     const [shippingInfo, setShippingInfo] = useState({ cost: 0, date: '' });
     const [isAdmin, setIsAdmin] = useState(false);
+    const [userAddress, setUserAddress] = useState('');
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
@@ -38,7 +39,9 @@ const ProductDetails = () => {
 
     const handleBuyNow = () => {
         const token = localStorage.getItem('token');
-        if (!token) {
+        const user = JSON.parse(localStorage.getItem('user'));
+
+        if (!token || !user) {
             alert('Please login to purchase');
             navigate('/login');
             return;
@@ -55,6 +58,7 @@ const ProductDetails = () => {
             date: deliveryDate.toDateString()
         });
 
+        setUserAddress(user.address || '');
         setShowCheckout(true);
     };
 
@@ -161,7 +165,7 @@ const ProductDetails = () => {
                                     <label className="label cursor-pointer justify-start gap-2">
                                         <span className="label-text font-semibold">Shipping Address</span>
                                     </label>
-                                    <input ref={addressRef} type="text" placeholder="123 Main St, City, Country" className="input input-bordered w-full" defaultValue="123 Smart St, Tech City" />
+                                    <input ref={addressRef} type="text" placeholder="123 Main St, City, Country" className="input input-bordered w-full" defaultValue={userAddress} />
                                 </div>
 
                                 <div>

@@ -44,8 +44,7 @@ const Contact = () => {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-lg mb-1">Visit Us</h3>
-                                    <p className="opacity-80">123 Innovation Drive</p>
-                                    <p className="opacity-80">Tech City, TC 90210</p>
+                                    <p className="opacity-80">Chattogram, Bangladesh</p>
                                 </div>
                             </div>
 
@@ -71,7 +70,7 @@ const Contact = () => {
                                 <div>
                                     <h3 className="font-bold text-lg mb-1">Call Us</h3>
                                     <p className="opacity-80">+1 (555) 123-4567</p>
-                                    <p className="opacity-80">Mon-Fri, 9am - 6pm</p>
+                                    <p className="opacity-80">Sun-Thu, 9am - 6pm</p>
                                 </div>
                             </div>
                         </div>
