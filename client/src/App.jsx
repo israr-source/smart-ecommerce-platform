@@ -7,6 +7,7 @@ import ProductDetails from './pages/ProductDetails';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Contact from './pages/Contact';
+import About from './pages/About';
 import OrderConfirmation from './pages/OrderConfirmation';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -25,6 +26,7 @@ function App() {
                 <Dashboard />
               </PrivateRoute>
             } />
+            <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
