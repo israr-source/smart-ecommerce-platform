@@ -28,7 +28,7 @@ const SlidingHero = () => {
                     </div>
                 </div>
                 <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2 z-10">
-                    <a href="#slide4" className="btn btn-circle glass text-white border-none hover:bg-white/20">❮</a>
+                    <a href="#slide3" className="btn btn-circle glass text-white border-none hover:bg-white/20">❮</a>
                     <a href="#slide2" className="btn btn-circle glass text-white border-none hover:bg-white/20">❯</a>
                 </div>
             </div>
@@ -46,6 +46,22 @@ const SlidingHero = () => {
                 <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2 z-10">
                     <a href="#slide1" className="btn btn-circle glass text-white border-none hover:bg-white/20">❮</a>
                     <a href="#slide3" className="btn btn-circle glass text-white border-none hover:bg-white/20">❯</a>
+                </div>
+            </div>
+
+            {/* Slide 3 */}
+            <div id="slide3" className="carousel-item relative w-full">
+                <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1600&q=80" alt="Smart Home" className="w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-black/40 to-transparent flex items-center justify-end pr-20">
+                    <div className="max-w-xl text-white text-right">
+                        <h1 className="mb-5 text-6xl font-bold leading-tight drop-shadow-lg">Smart Home <br /><span className="text-secondary">Revolution</span></h1>
+                        <p className="mb-8 text-xl font-light opacity-90">Seamless Connectivity. Stay connected with our premium range of smart home devices.</p>
+                        <Link to="/products?category=Smart Home" className="btn btn-secondary border-none shadow-xl px-10 btn-lg rounded-full">Shop Smart Home</Link>
+                    </div>
+                </div>
+                <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2 z-10">
+                    <a href="#slide2" className="btn btn-circle glass text-white border-none hover:bg-white/20">❮</a>
+                    <a href="#slide1" className="btn btn-circle glass text-white border-none hover:bg-white/20">❯</a>
                 </div>
             </div>
         </div>
